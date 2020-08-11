@@ -79,12 +79,17 @@ class Graph:
 
         This should be done using recursion.
         """
+        # start by adding visited to parameters
+        # if the starting vertex is not in that list
         if starting_vertex not in visited:
+            # add it to the list
             visited.add(starting_vertex)
-            # for debugging
+            # print it
             print(starting_vertex)
 
+            # for each next vertex in the result of calling get_neighbors with starting vertex
             for next_vertex in self.get_neighbors(starting_vertex):
+                # call the dft recursive fn again, passing in next_vertex and visited
                 self.dft_recursive(next_vertex, visited)
 
     def bfs(self, starting_vertex, destination_vertex):
@@ -189,6 +194,7 @@ class Graph:
             visited.add(starting_vertex)
             # for debugging
             # print(starting_vertex)
+            # this is bc we do not want to modify the original path
             copy_path = path.copy()
             copy_path.append(starting_vertex)
 
