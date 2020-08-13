@@ -1,4 +1,7 @@
 # we are going to use dft, because we want to move vertically and not width wise
+
+
+# bring in Stack
 class Stack():
     def __init__(self):
         self.stack = []
@@ -21,6 +24,7 @@ def earliest_ancestor(ancestors, starting_node):
     graph = {}
     e_a_path = []
     # print(starting_node)
+
     # create a loop
     for parent, child in ancestors:
         ### we want children to have a list of parents
@@ -33,7 +37,7 @@ def earliest_ancestor(ancestors, starting_node):
     # create visited set
     visited = set()
 
-    # create a stack and append the starting node
+    # create a stack and append the starting node as a list
     s = Stack()
     s.push([starting_node])
 
@@ -42,7 +46,6 @@ def earliest_ancestor(ancestors, starting_node):
         ### pop
         # change node to path
         path = s.pop()
-        print(path)
         # our vertex in that path
         v = path[-1]
         # if not in visited
@@ -54,10 +57,8 @@ def earliest_ancestor(ancestors, starting_node):
             if len(path) > len(e_a_path) or (len(path) == len(e_a_path)
                                              and path[-1] < e_a_path[-1]):
                 e_a_path = path
-                print("newrecord", e_a_path)
 
             if v in graph:
-                print('parents of ', v, ':', graph[v])
                 for parent in graph[v]:
 
                     # make a copy of the path
