@@ -30,6 +30,7 @@ traversal_path = []
 visited = {}
 last_unexplored_room = []
 starting = True
+breadcrumbs = []
 
 
 def add_to_visited(current_room):
@@ -38,37 +39,58 @@ def add_to_visited(current_room):
         visited[current_room.id][e] = '?'
 
 
+def travel_reverse():
+    while player.current_room.id != last_unexplored_room[-1][0]:
+        print("bc", breadcrumbs)
+
+        crumb = breadcrumbs.pop()
+        player.travel(crumb)
+        traversal_path.append(crumb)
+
+
 add_to_visited(player.current_room)
 
-while len(player.current_room.get_exits()) > 1 or starting == True:
-    # find the exits for the current room
-    exits = player.current_room.get_exits()
-    starting = False
+while len(visited) < len(room_graph):
+    while len(player.current_room.get_exits()) > 1 or starting == True:
+        # find the exits for the current room
+        exits = player.current_room.get_exits()
+        starting = False
 
-    # add current room to visited
-    # visited[player.current_room.id] = {}
-    # for e in exits:
-    #     visited[player.current_room.id][e] = '?'
+        # figure out the next room the player is moving to
+        # exist is a list of directions we can move. The first element is the direction we move in
+        direction = exits[0]
+        # if theres more than one way we can move
+        if len(exits) > 1:
+            # we slice off the first element, be cause we will visit that one
+            exits = exits[1:]
+            for e in exits:
+                if visited[player.current_room.id][e] == '?':
+                    # we're appending all other possible exits
+                    last_unexplored_room.append((player.current_room.id, e))
+                    print("lur", last_unexplored_room)
 
-    # figure out the next room the player is moving to
-    # exist is a list of directions we can move. The first element is the direction we move in
-    direction = exits[0]
-    # if theres more than one way we can move
-    if len(exits) > 1:
-        # we slice off the first element, be cause we will visit that one
-        exits = exits[1:]
-        for e in exits:
-            # we're appending all other possible exits
-            last_unexplored_room.append((player.current_room.id, e))
+        # move to the room in that direction
+        prevroom = player.current_room
+        reverse = {'n': 's', 'e': 'w', 's': 'n', 'w': 'e'}
 
-    # move to the room in that direction
-    prevroom = player.current_room
-    reverse = {'n': 's', 'e': 'w', 's': 'n', 'w': 'e'}
-    player.travel(direction)
-    add_to_visited(player.current_room)
-    visited[prevroom.id][direction] = player.current_room.id
-    visited[player.current_room.id][reverse[direction]] = prevroom.id
-    print(visited)
+        # travel
+        player.travel(direction)
+        traversal_path.append(direction)
+
+        # add to visited
+        add_to_visited(player.current_room)
+
+        # make the room connections
+        visited[prevroom.id][direction] = player.current_room.id
+        visited[player.current_room.id][reverse[direction]] = prevroom.id
+        breadcrumbs.append(reverse[direction])
+        print(visited)
+
+    if len(last_unexplored_room) == 0:
+        # we will return traversal_path here, signifying that we are done! :O
+        pass
+    else:
+        travel_reverse()
 
 # TRAVERSAL TEST
 visited_rooms = set()
