@@ -30,7 +30,6 @@ player = Player(world.starting_room)
 traversal_path = []
 visited = {}
 last_unexplored_room = []
-
 breadcrumbs = []
 
 
