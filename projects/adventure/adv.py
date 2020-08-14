@@ -12,16 +12,16 @@ world = World()
 # You may uncomment the smaller graphs for development and testing purposes.
 # map_file = "maps/test_line.txt"
 # map_file = "maps/test_cross.txt"
-map_file = "maps/test_loop.txt"
+# map_file = "maps/test_loop.txt"
 # map_file = "maps/test_loop_fork.txt"
-# map_file = "maps/main_maze.txt"
+map_file = "maps/main_maze.txt"
 
 # Loads the map into a dictionary
 room_graph = literal_eval(open(map_file, "r").read())
 world.load_graph(room_graph)
 
 # Print an ASCII map
-world.print_rooms()
+# world.print_rooms()
 
 player = Player(world.starting_room)
 
@@ -44,31 +44,30 @@ def add_to_visited(current_room):
 
 
 def travel_reverse():
-    while player.current_room.id != last_unexplored_room[-1][0]:
-        # print("bc", breadcrumbs)
-
+    while player.current_room.id != last_unexplored_room[-1]:
         crumb = breadcrumbs.pop()
         player.travel(crumb)
-        print('room id', player.current_room.id)
+        # print('room id', player.current_room.id)
         traversal_path.append(crumb)
-    # print('travel reverse')
+    # we remove the room from l_u_r each tie we back track
+    last_unexplored_room.pop()
 
 
 def get_unexplored_exits():
     # find the exits for the current room
     exits = player.current_room.get_exits()
     res = [e for e in exits if visited[player.current_room.id][e] == '?']
-    print('GUE', res)
+    # print('GUE', res)
+    # print('lur', last_unexplored_room)
     return res
 
 
 add_to_visited(player.current_room)
 
 while len(visited) < len(room_graph):
-    while len(player.current_room.get_exits()) > 1 or starting == True:
-        time.sleep(0.2)
-        starting = False
 
+    while len(get_unexplored_exits()) > 0:
+        # starting = False
         exits = get_unexplored_exits()
         # figure out the next room the player is moving to
         # exist is a list of directions we can move. The first element is the direction we move in
@@ -77,12 +76,10 @@ while len(visited) < len(room_graph):
         if len(exits) > 1:
             # we slice off the first element, because we will visit that one
             exits = exits[1:]
-            for e in exits:
-                # we are adding exits with a '?' (exits we did not visit) to last_unexplored_room
-                if visited[player.current_room.id][e] == '?':
-                    # we're appending all other possible exits
-                    last_unexplored_room.append((player.current_room.id, e))
-                    # print("lur", last_unexplored_room)
+            if player.current_room.id not in last_unexplored_room:
+                # we're appending all rooms with unexplored exits
+                last_unexplored_room.append(player.current_room.id)
+                # print("lur", last_unexplored_room)
 
         # move to the room in that direction
         prevroom = player.current_room
@@ -90,7 +87,7 @@ while len(visited) < len(room_graph):
 
         # travel
         player.travel(direction)
-        print('ROOM ID', player.current_room.id)
+        # print('ROOM ID', player.current_room.id)
         traversal_path.append(direction)
         # print('move')
 
@@ -102,7 +99,6 @@ while len(visited) < len(room_graph):
         visited[prevroom.id][direction] = player.current_room.id
         visited[player.current_room.id][reverse[direction]] = prevroom.id
         breadcrumbs.append(reverse[direction])
-        # print('make room connections')
 
     if len(last_unexplored_room) == 0:
         # we will return traversal_path here, signifying that we are done! :O
