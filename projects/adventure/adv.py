@@ -9,11 +9,11 @@ from ast import literal_eval
 world = World()
 
 # You may uncomment the smaller graphs for development and testing purposes.
-# map_file = "maps/test_line.txt"
+map_file = "maps/test_line.txt"
 # map_file = "maps/test_cross.txt"
 # map_file = "maps/test_loop.txt"
 # map_file = "maps/test_loop_fork.txt"
-map_file = "maps/main_maze.txt"
+# map_file = "maps/main_maze.txt"
 
 # Loads the map into a dictionary
 room_graph = literal_eval(open(map_file, "r").read())
@@ -29,27 +29,46 @@ player = Player(world.starting_room)
 traversal_path = []
 visited = {}
 last_unexplored_room = []
+starting = True
 
-while  
-    # find the exits for the current room
-    exits = current_room.get_exits()
 
-    # add current room to visited
+def add_to_visited(current_room):
     visited[current_room.id] = {}
-    for e in exits:
+    for e in current_room.get_exits():
         visited[current_room.id][e] = '?'
 
+
+add_to_visited(player.current_room)
+
+while len(player.current_room.get_exits()) > 1 or starting == True:
+    # find the exits for the current room
+    exits = player.current_room.get_exits()
+    starting = False
+
+    # add current room to visited
+    # visited[player.current_room.id] = {}
+    # for e in exits:
+    #     visited[player.current_room.id][e] = '?'
+
     # figure out the next room the player is moving to
+    # exist is a list of directions we can move. The first element is the direction we move in
     direction = exits[0]
+    # if theres more than one way we can move
     if len(exits) > 1:
+        # we slice off the first element, be cause we will visit that one
         exits = exits[1:]
         for e in exits:
+            # we're appending all other possible exits
             last_unexplored_room.append((player.current_room.id, e))
 
-
     # move to the room in that direction
+    prevroom = player.current_room
+    reverse = {'n': 's', 'e': 'w', 's': 'n', 'w': 'e'}
     player.travel(direction)
-
+    add_to_visited(player.current_room)
+    visited[prevroom.id][direction] = player.current_room.id
+    visited[player.current_room.id][reverse[direction]] = prevroom.id
+    print(visited)
 
 # TRAVERSAL TEST
 visited_rooms = set()
@@ -71,12 +90,12 @@ else:
 #######
 # UNCOMMENT TO WALK AROUND
 #######
-player.current_room.print_room_description(player)
-while True:
-    cmds = input("-> ").lower().split(" ")
-    if cmds[0] in ["n", "s", "e", "w"]:
-        player.travel(cmds[0], True)
-    elif cmds[0] == "q":
-        break
-    else:
-        print("I did not understand that command.")
+# player.current_room.print_room_description(player)
+# while True:
+#     cmds = input("-> ").lower().split(" ")
+#     if cmds[0] in ["n", "s", "e", "w"]:
+#         player.travel(cmds[0], True)
+#     elif cmds[0] == "q":
+#         break
+#     else:
+#         print("I did not understand that command.")
